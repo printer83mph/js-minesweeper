@@ -1,5 +1,5 @@
 // dom stuff
-var butcustom, custominput;
+var custominput;
 
 // mouse stuff
 var mouseX, mouseY, blockX, blockY;
@@ -65,7 +65,7 @@ function uncoverSpot(x, y) {
 
 function makeGrid(gSize, fill) {
   // output grid
-  out = [];
+  var out = [];
   // add all the zeroes
   for (var i = 0; i < gridSize; i++) {
     var thisRow = [];
@@ -86,7 +86,7 @@ function resizeGrid(gSize) {
   visGrid = makeGrid(gSize, 0);
   // re-place bombs
   bombs = [];
-  var oldJawn, newJawn;
+  var newJawn;
   for(var i = 0; i < 10; i++) {
     do {
       newJawn = [Math.floor(Math.random()*gridSize), Math.floor(Math.random()*gridSize)];
@@ -97,7 +97,6 @@ function resizeGrid(gSize) {
 }
 
 window.onload = function() {
-  butcustom = document.getElementById("custom");
   custominput = document.getElementById("custominput");
 
   // game stuff
