@@ -1,0 +1,44 @@
+
+body, div {
+  text-align: center;
+  font-family: sans-serif;
+}
+
+button, input {
+  outline: none;
+}
+
+button {
+  background-color: white;
+  border: 1px solid lightgrey;
+  padding: 7px;
+  border-radius: 5px;
+}
+
+button:active {
+  background-color: lightgrey;
+}
+
+nav {
+  margin-bottom: 20px;
+}
+
+@media only screen and (min-width: 700px) {
+  button {
+    transition: border-color .5s, transform .1s;
+  }
+
+  button:hover {
+    background-color: lightgrey;
+  }
+
+  button:active {
+    transform: scale(0.9);
+  }
+
+  div {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
