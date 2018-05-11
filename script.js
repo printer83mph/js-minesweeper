@@ -90,7 +90,7 @@ function resizeGrid(gSize) {
   for(var i = 0; i < 10; i++) {
     do {
       newJawn = [Math.floor(Math.random()*gridSize), Math.floor(Math.random()*gridSize)];
-    } while (newJawn in bombs);
+    } while (bombs.indexOf(newJawn) > -1);
     bombs.push(newJawn);
   }
   drawGrid();
