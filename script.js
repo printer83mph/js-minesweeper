@@ -1,11 +1,11 @@
 // dom stuff
-var custominput;
+var custominput, canvas, ctx;
 
 // mouse stuff
 var mouseX, mouseY, blockX, blockY;
 
 // grid stuff
-var canvas, ctx, size, bombs, visGrid, gridSize, blockSize;
+var gameState, size, bombs, visGrid, gridSize, blockSize;
 
 // bombs
 
@@ -34,6 +34,16 @@ function drawGrid() {
     ctx.stroke();
   }
 
+  //draw bombs if game over
+  if (gameState === "LOSE") {
+    ctx.fillStyle = "#ff0000";
+    for (b in bombs) {
+      ctx.beginPath();
+      ctx.ellipse(blockSize * (bombs[b][0] + .5), blockSize * (bombs[b][1] + .5), blockSize / 3, blockSize / 3, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
   // window.requestAnimationFrame(drawGrid);
 }
 
@@ -57,8 +67,8 @@ function markSpot(x, y) {
 }
 
 function uncoverSpot(x, y) {
-  if([x, y] in bombs) {
-    endGame(false);
+  if(bombs.indexOf([x, y]) > -1) {
+    gameState = "LOSE";
   }
   drawGrid();
 }
@@ -79,9 +89,10 @@ function makeGrid(gSize, fill) {
 }
 
 function resizeGrid(gSize) {
-  // refresh sizes
+  // refresh sizes + gameState
   gridSize = gSize;
   blockSize = size/gridSize;
+  gameState = "ACTIVE";
   // make visGrid
   visGrid = makeGrid(gSize, 0);
   // re-place bombs
