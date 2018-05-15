@@ -107,9 +107,10 @@ function makeGrid(gSize, fill) {
 }
 
 function resizeGrid(gSize) {
-  // refresh sizes
+  // refresh sizes + gameState
   gridSize = gSize;
   blockSize = size/gridSize;
+  gameState = "ACTIVE";
   // make visGrid
   visGrid = makeGrid(gSize, -1);
   gameState = 0;
@@ -119,7 +120,7 @@ function resizeGrid(gSize) {
   for(var i = 0; i < gridSize**2 / 10; i++) {
     do {
       newJawn = [Math.floor(Math.random()*gridSize), Math.floor(Math.random()*gridSize)];
-    } while (newJawn in bombs);
+    } while (isBomb(newJawn[0],newJawn[1]));
     bombs.push(newJawn);
   }
   drawGrid();
