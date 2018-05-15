@@ -5,7 +5,7 @@ var custominput;
 var mouseX, mouseY, blockX, blockY;
 
 // grid stuff
-var canvas, ctx, size, bombs, visGrid, gridSize, blockSize;
+var canvas, ctx, size, bombs, visGrid, gridSize, blockSize, gameState;
 
 // bombs
 
@@ -34,33 +34,61 @@ function drawGrid() {
     ctx.stroke();
   }
 
+  if (gameState == -1) {
+    ctx.fillStyle = "#d02020"
+    for (b in bombs) {
+      ctx.beginPath();
+      ctx.ellipse((bombs[b][0] + .5) * blockSize, (bombs[b][1] + .5) * blockSize, blockSize/3, blockSize/3, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
   // window.requestAnimationFrame(drawGrid);
+}
+
+function isBomb(x, y) {
+  for (b in bombs) {
+    if (x === bombs[b][0] && y === bombs[b][1]) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function bombsNear(x, y) {
   var bc = 0;
   for (var i = x-1; i < x + 2; i++) {
     for (var j = y-1; j < y + 2; j++) {
-      for (var k in bombs) {
-        if ([i,j] == bombs[k]) {bc++}
-      }
-      // if ([i, j] in bombs) {
-      //   bc++;
-      // } else {console.log([i,j].toString() + " not in bombs")}
+      if (isBomb(i, j)) {bc++}
     }
   }
   return bc;
 }
 
 function markSpot(x, y) {
+  // console.log("todo: mark spot");
+
+  var toCheckAround = [[x, y]];
+  while (toCheckAround.length > 0) {
+    for (var spot = toCheckAround.length - 1; i >= 0; i--) {
+
+      // TODO: fill toCheckAround with new spots (cannot be bombs/next to bombs) and update visgrid
+
+      toCheckAround.splice(spot,1);
+    }
+  }
+
   drawGrid();
 }
 
 function uncoverSpot(x, y) {
-  if([x, y] in bombs) {
-    endGame(false);
+  if (gameState === 0) {
+    console.log(x, y);
+    if(isBomb(x,y)) {
+      gameState = -1;
+      drawGrid();
+    }
   }
-  drawGrid();
 }
 
 function makeGrid(gSize, fill) {
@@ -83,11 +111,12 @@ function resizeGrid(gSize) {
   gridSize = gSize;
   blockSize = size/gridSize;
   // make visGrid
-  visGrid = makeGrid(gSize, 0);
+  visGrid = makeGrid(gSize, -1);
+  gameState = 0;
   // re-place bombs
   bombs = [];
   var newJawn;
-  for(var i = 0; i < 10; i++) {
+  for(var i = 0; i < gridSize**2 / 10; i++) {
     do {
       newJawn = [Math.floor(Math.random()*gridSize), Math.floor(Math.random()*gridSize)];
     } while (newJawn in bombs);
