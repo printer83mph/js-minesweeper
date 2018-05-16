@@ -7,15 +7,30 @@ var mouseX, mouseY, blockX, blockY;
 // grid stuff
 var canvas, ctx, bombGrid, visGrid, gridX, gridY, blockSize, gameState;
 
-// bombs
-
 function drawGridIfNeeded() {
-  if (Math.floor(mouseX/blockSize) != blockX || Math.floor(mouseY/blockSize) != blockY) {
+  var newX = Math.floor(mouseX/blockSize);
+  var newY = Math.floor(mouseY/blockSize);
+  if (gameState === 0 && (newX != blockX || newX != blockY)) {
+    drawRecentTiles(newX, newY);
     blockX = Math.floor(mouseX/blockSize);
     blockY = Math.floor(mouseY/blockSize);
-    if (gameState === 0) {
-      drawGrid();
+    drawDivs();
+  }
+}
+
+function mouseOnGrid() {
+  return mouseX > 0 && mouseX < canvas.width && mouseY > 0 && mouseY < canvas.height;
+}
+
+function drawRecentTiles(newX, newY) {
+  if (blockX >= 0 && blockX < gridX && blockY >= 0 && blockY < gridY) {
+    if (visGrid[blockY][blockX] === -1) {
+      ctx.fillStyle = "#e8e8e8";
+      ctx.fillRect(blockX*blockSize,blockY*blockSize, blockSize, blockSize);
     }
+  } if (mouseOnGrid() && visGrid[newY][newX] === -1) {
+    ctx.fillStyle = "#d0d0d0";
+    ctx.fillRect(newX * blockSize, newY*blockSize, blockSize, blockSize);
   }
 }
 
@@ -24,11 +39,6 @@ function drawGrid() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
   ctx.fillStyle ="#d0d0d0";
-
-  // mouse hover
-  if (mouseX > 0 && mouseX < canvas.width && mouseY > 0 && mouseY < canvas.height) {
-    ctx.fillRect(blockX*blockSize, blockY*blockSize, blockSize, blockSize);
-  }
 
   // draw uncovered
   for (var x = 0; x < gridX; x++) {
@@ -59,7 +69,13 @@ function drawGrid() {
   }
 
   // draw divs
-  ctx.lineWidth = 1;
+  drawDivs();
+
+  // window.requestAnimationFrame(drawGrid);
+}
+
+function drawDivs() {
+  ctx.lineWidth = 2;
   for (var i = 1; i < gridX; i++) {
     // draw col dividers
     ctx.beginPath();
@@ -74,7 +90,6 @@ function drawGrid() {
     ctx.lineTo(canvas.width, i * blockSize);
     ctx.stroke();
   }
-  // window.requestAnimationFrame(drawGrid);
 }
 
 function inSet(set, x, y) {
@@ -208,6 +223,8 @@ window.onload = function() {
   // game stuff
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
+  blockX = -1;
+  blockY = -1;
   resizeGrid(8,8);
 
   // hover stuff
