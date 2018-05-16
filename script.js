@@ -64,14 +64,14 @@ function drawGrid() {
     // draw col dividers
     ctx.beginPath();
     ctx.moveTo(i * blockSize, 0);
-    ctx.lineTo(i * blockSize, canvas.width);
+    ctx.lineTo(i * blockSize, canvas.height);
     ctx.stroke();
   }
   for (var i = 1; i < gridY; i++) {
     // draw row divs
     ctx.beginPath();
     ctx.moveTo(0, i * blockSize);
-    ctx.lineTo(canvas.height, i * blockSize);
+    ctx.lineTo(canvas.width, i * blockSize);
     ctx.stroke();
   }
   // window.requestAnimationFrame(drawGrid);
