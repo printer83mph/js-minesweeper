@@ -33,12 +33,6 @@ function drawGrid() {
   // draw uncovered
   for (var x = 0; x < gridX; x++) {
     for (var y = 0; y < gridY; y++) {
-      if (gameState === -1 && bombGrid[y][x]) {
-        ctx.fillStyle = "#d02020"
-        ctx.beginPath();
-        ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
-        ctx.fill();
-      }
       if (visGrid[y][x] >= 0) {
         // if is uncovered
         ctx.fillStyle = "#ffffff";
@@ -51,6 +45,12 @@ function drawGrid() {
       } else if (visGrid[y][x] === -2) {
         // checked
         ctx.fillStyle = "#2020d0";
+        ctx.beginPath();
+        ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
+        ctx.fill();
+      }
+      if (gameState === -1 && bombGrid[y][x]) {
+        ctx.fillStyle = "#d02020"
         ctx.beginPath();
         ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
         ctx.fill();
