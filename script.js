@@ -13,7 +13,9 @@ function drawGridIfNeeded() {
   if (Math.floor(mouseX/blockSize) != blockX || Math.floor(mouseY/blockSize) != blockY) {
     blockX = Math.floor(mouseX/blockSize);
     blockY = Math.floor(mouseY/blockSize);
-    drawGrid();
+    if (gameState === 0) {
+      drawGrid();
+    }
   }
 }
 
@@ -104,19 +106,18 @@ function markSpot(x, y) {
 function uncoverSpot(x, y) {
   if (gameState === 0) {
     if(isBomb(x,y)) {
+      if (visGrid[y][x] === -2) {return;}
       gameState = -1;
       title.innerHTML = "Defeat!";
     } else {
       var toCheckAround = [];
       // see if init spot needs to be checked around
-      if (!bombsNear(x, y) && visGrid[y][x] < 0) {
+      visGrid[y][x] = bombsNear(x,y);
+      if (!bombsNear(x,y)) {
         toCheckAround.push([x, y]);
       }
-      visGrid[y][x] = bombsNear(x,y);
       while (toCheckAround.length) {
         var spot = toCheckAround.shift();
-        // visGrid[spot[1]][spot[0]] = bombsNear(spot[0], spot[1]);
-        // console.log("spot " + spot[0] + " " + spot[1]);
         // fill toCheckAround with new spots (cannot be bombs/next to bombs) and update visgrid
         for (var i = Math.max(spot[0]-1, 0); i < Math.min(spot[0] + 2, gridSize); i++) {
           for (var j = Math.max(spot[1]-1, 0); j < Math.min(spot[1] + 2, gridSize); j++) {
@@ -170,7 +171,7 @@ function resizeGrid(gSize) {
   gridSize = gSize;
   blockSize = size/gridSize;
   gameState = 0;
-  ctx.font = blockSize + "px Arial";
+  ctx.font = blockSize + "px Helvetica, sans serif";
   ctx.textAlign = "center";
   title.innerHTML = "Minesweeper";
   // make visGrid
