@@ -42,7 +42,7 @@ function drawGrid() {
           ctx.fill();
         } else if (visGrid[y][x]) {
           ctx.fillStyle = "#202020";
-          ctx.fillText(visGrid[y][x], blockSize * x, blockSize * y + blockSize);
+          ctx.fillText(visGrid[y][x], blockSize * (x + 0.5), blockSize * (y + 0.85));
         }
       }
     }
@@ -170,7 +170,8 @@ function resizeGrid(gSize) {
   gridSize = gSize;
   blockSize = size/gridSize;
   gameState = 0;
-  ctx.font = blockSize*3/2 + "px Arial";
+  ctx.font = blockSize + "px Arial";
+  ctx.textAlign = "center";
   title.innerHTML = "Minesweeper";
   // make visGrid
   visGrid = makeGrid(gSize, -1);

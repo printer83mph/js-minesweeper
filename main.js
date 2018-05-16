@@ -7,7 +7,7 @@ const url = require("url");
 let mainWindow;
 
 function makeWindow() {
-  mainWindow = new BrowserWindow({width: 800, height: 800});
+  mainWindow = new BrowserWindow({width: 780, height: 780});
 
   mainWindow.setMenu(null);
 
