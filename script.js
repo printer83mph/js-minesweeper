@@ -58,7 +58,7 @@ function drawGrid() {
     // draw col dividers
     ctx.beginPath();
     ctx.moveTo(i * blockSize, 0);
-    ctx.lineTo(i * blockSize, canvas.height);
+    ctx.lineTo(i * blockSize, canvas.width);
     ctx.stroke();
   }
   for (var i = 1; i < gridY; i++) {
