@@ -1,5 +1,5 @@
 // dom stuff
-var custominput;
+var custominput, title;
 
 // mouse stuff
 var mouseX, mouseY, blockX, blockY;
@@ -105,6 +105,7 @@ function uncoverSpot(x, y) {
   if (gameState === 0) {
     if(isBomb(x,y)) {
       gameState = -1;
+      title.innerHTML = "Defeat!";
     } else {
       var toCheckAround = [];
       // see if init spot needs to be checked around
@@ -145,6 +146,7 @@ function checkWin() {
   }
   if (won) {
     gameState = 1;
+    title.innerHTML = "Victory!";
   }
 }
 
@@ -167,11 +169,11 @@ function resizeGrid(gSize) {
   // refresh sizes + gameState
   gridSize = gSize;
   blockSize = size/gridSize;
-  gameState = "ACTIVE";
+  gameState = 0;
   ctx.font = blockSize*3/2 + "px Arial";
+  title.innerHTML = "Minesweeper";
   // make visGrid
   visGrid = makeGrid(gSize, -1);
-  gameState = 0;
   // re-place bombs
   bombs = [];
   var newJawn;
@@ -186,6 +188,7 @@ function resizeGrid(gSize) {
 
 window.onload = function() {
   custominput = document.getElementById("custominput");
+  title = document.getElementById("title");
 
   // game stuff
   canvas = document.getElementById("canvas");
