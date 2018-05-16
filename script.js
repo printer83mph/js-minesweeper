@@ -24,49 +24,63 @@ function mouseOnGrid() {
 
 function drawRecentTiles(newX, newY) {
   if (blockX >= 0 && blockX < gridX && blockY >= 0 && blockY < gridY) {
-    if (visGrid[blockY][blockX] === -1) {
+    if (visGrid[blockY][blockX] < 0) {
       ctx.fillStyle = "#e8e8e8";
       ctx.fillRect(blockX*blockSize,blockY*blockSize, blockSize, blockSize);
+      if (visGrid[blockY][blockX] === -2) {
+        // checked
+        ctx.fillStyle = "#2020d0";
+        ctx.beginPath();
+        ctx.ellipse(blockSize * (blockX + 0.5), blockSize * (blockY + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
+        ctx.fill();
+      }
     }
-  } if (mouseOnGrid() && visGrid[newY][newX] === -1) {
+  } if (mouseOnGrid() && visGrid[newY][newX] < 0) {
     ctx.fillStyle = "#d0d0d0";
     ctx.fillRect(newX * blockSize, newY*blockSize, blockSize, blockSize);
+    if ((newX >= 0 && newX < gridX && newY >= 0 && newY < gridY) && visGrid[newY][newX] === -2) {
+      // checked
+      ctx.fillStyle = "#2020d0";
+      ctx.beginPath();
+      ctx.ellipse(blockSize * (newX + 0.5), blockSize * (newY + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
   }
 }
 
-function drawGrid() {
+function drawInitGrid() {
   ctx.fillStyle = "#e8e8e8";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
   ctx.fillStyle ="#d0d0d0";
 
   // draw uncovered
-  for (var x = 0; x < gridX; x++) {
-    for (var y = 0; y < gridY; y++) {
-      if (visGrid[y][x] >= 0) {
-        // if is uncovered
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(blockSize * x, blockSize * y, blockSize, blockSize);
-        if (visGrid[y][x]) {
-          // number
-          ctx.fillStyle = "#202020";
-          ctx.fillText(visGrid[y][x], blockSize * (x + 0.5), blockSize * (y + 0.85));
-        }
-      } else if (visGrid[y][x] === -2) {
-        // checked
-        ctx.fillStyle = "#2020d0";
-        ctx.beginPath();
-        ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
-        ctx.fill();
-      }
-      if (gameState === -1 && bombGrid[y][x]) {
-        ctx.fillStyle = "#d02020"
-        ctx.beginPath();
-        ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
-        ctx.fill();
-      }
-    }
-  }
+  // for (var x = 0; x < gridX; x++) {
+  //   for (var y = 0; y < gridY; y++) {
+  //     if (visGrid[y][x] >= 0) {
+  //       // if is uncovered
+  //       ctx.fillStyle = "#ffffff";
+  //       ctx.fillRect(blockSize * x, blockSize * y, blockSize, blockSize);
+  //       if (visGrid[y][x]) {
+  //         // number
+  //         ctx.fillStyle = "#202020";
+  //         ctx.fillText(visGrid[y][x], blockSize * (x + 0.5), blockSize * (y + 0.85));
+  //       }
+  //     } else if (visGrid[y][x] === -2) {
+  //       // checked
+  //       ctx.fillStyle = "#2020d0";
+  //       ctx.beginPath();
+  //       ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
+  //       ctx.fill();
+  //     }
+  //     if (gameState === -1 && bombGrid[y][x]) {
+  //       ctx.fillStyle = "#d02020"
+  //       ctx.beginPath();
+  //       ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
+  //       ctx.fill();
+  //     }
+  //   }
+  // }
 
   // draw divs
   drawDivs();
@@ -115,7 +129,11 @@ function markSpot(x, y) {
   // console.log("todo: mark spot");
   if (visGrid[y][x] < 0 && gameState === 0) {
     visGrid[y][x] = -3 -visGrid[y][x];
-    drawGrid();
+    ctx.fillStyle = visGrid[y][x] === -2 ? "#2020d0" : "#d0d0d0";
+    ctx.beginPath();
+    let rad = visGrid[y][x] === -2 ? blockSize/3 : blockSize/2.5;
+    ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), rad, rad, 0, 0, Math.PI*2);
+    ctx.fill();
   }
 }
 
@@ -125,12 +143,31 @@ function uncoverSpot(x, y) {
     if(bombGrid[y][x]) {
       gameState = -1;
       title.innerHTML = "Defeat!";
+      for (var i = 0; i < gridX; i++) {
+        for (var j = 0; j < gridY; j++) {
+          if (bombGrid[j][i]) {
+            ctx.fillStyle = "#d02020"
+            ctx.beginPath();
+            ctx.ellipse(blockSize * (i + 0.5), blockSize * (j + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
+            ctx.fill();
+          }
+        }
+      }
     } else {
       var toCheckAround = [];
       // see if init spot needs to be checked around
       visGrid[y][x] = bombsNear(x,y);
       if (!bombsNear(x,y)) {
         toCheckAround.push([x, y]);
+      } else {
+        // fill in visual spot for just one
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(blockSize * x, blockSize * y, blockSize, blockSize);
+        drawDivs();
+        if (visGrid[y][x]) {
+          ctx.fillStyle = "#202020";
+          ctx.fillText(visGrid[y][x], blockSize * (x + 0.5), blockSize * (y + 0.85));
+        }
       }
       while (toCheckAround.length) {
         var spot = toCheckAround.shift();
@@ -141,12 +178,20 @@ function uncoverSpot(x, y) {
               toCheckAround.push([i, j]);
             }
             visGrid[j][i] = bombsNear(i,j);
+            // fill in visual spot
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(blockSize * i, blockSize * j, blockSize, blockSize);
+            drawDivs();
+            if (visGrid[j][i]) {
+              ctx.fillStyle = "#202020";
+              ctx.fillText(visGrid[j][i], blockSize * (i + 0.5), blockSize * (j + 0.85));
+            }
           }
         }
       }
       checkWin();
     }
-    drawGrid();
+    // drawGrid();
   }
 }
 
@@ -213,7 +258,7 @@ function resizeGrid(gX,gY) {
     } while (bombGrid[newJawn[1]][newJawn[0]]);
     bombGrid[newJawn[1]][newJawn[0]] = true;
   }
-  drawGrid();
+  drawInitGrid();
 }
 
 window.onload = function() {
@@ -249,5 +294,5 @@ window.onload = function() {
     }
   });
 
-  drawGrid();
+  drawInitGrid();
 }
