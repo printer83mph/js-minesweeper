@@ -5,7 +5,7 @@ var custominput, title;
 var mouseX, mouseY, blockX, blockY;
 
 // grid stuff
-var canvas, ctx, bombs, visGrid, gridX, gridY, blockSize, gameState;
+var canvas, ctx, bombGrid, visGrid, gridX, gridY, blockSize, gameState;
 
 // bombs
 
@@ -33,6 +33,12 @@ function drawGrid() {
   // draw uncovered
   for (var x = 0; x < gridX; x++) {
     for (var y = 0; y < gridY; y++) {
+      if (gameState === -1 && bombGrid[y][x]) {
+        ctx.fillStyle = "#d02020"
+        ctx.beginPath();
+        ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
+        ctx.fill();
+      }
       if (visGrid[y][x] >= 0) {
         // if is uncovered
         ctx.fillStyle = "#ffffff";
@@ -68,16 +74,6 @@ function drawGrid() {
     ctx.lineTo(canvas.height, i * blockSize);
     ctx.stroke();
   }
-
-  if (gameState == -1) {
-    ctx.fillStyle = "#d02020"
-    for (b in bombs) {
-      ctx.beginPath();
-      ctx.ellipse((bombs[b][0] + .5) * blockSize, (bombs[b][1] + .5) * blockSize, blockSize/3, blockSize/3, 0, 0, Math.PI*2);
-      ctx.fill();
-    }
-  }
-
   // window.requestAnimationFrame(drawGrid);
 }
 
@@ -92,9 +88,9 @@ function inSet(set, x, y) {
 
 function bombsNear(x, y) {
   var bc = 0;
-  for (var i = x-1; i < x + 2; i++) {
-    for (var j = y-1; j < y + 2; j++) {
-      if (inSet(bombs, i, j)) {bc++}
+  for (var i = Math.max(x-1, 0); i < Math.min(x + 2, gridX); i++) {
+    for (var j = Math.max(y-1, 0); j < Math.min(y + 2, gridY); j++) {
+      if (bombGrid[j][i]) {bc++}
     }
   }
   return bc;
@@ -111,7 +107,7 @@ function markSpot(x, y) {
 function uncoverSpot(x, y) {
   if (gameState === 0) {
     if (visGrid[y][x] === -2) {return;}
-    if(inSet(bombs, x,y)) {
+    if(bombGrid[y][x]) {
       gameState = -1;
       title.innerHTML = "Defeat!";
     } else {
@@ -145,7 +141,7 @@ function checkWin() {
   for (x = 0; x < gridX; x++) {
     for (y = 0; y < gridY; y++) {
       // break if not checked or is bomb
-      if (visGrid[y][x] < 0 && !(inSet(bombs, x, y))) {
+      if (visGrid[y][x] < 0 && !(bombGrid[y][x])) {
         won = false;
         break checking;
       }
@@ -194,13 +190,13 @@ function resizeGrid(gX,gY) {
   // make visGrid
   visGrid = makeGrid(gX, gY, -1);
   // re-place bombs
-  bombs = [];
+  bombGrid = makeGrid(gX, gY, false);
   var newJawn;
   for(var i = 0; i < gX * gY / 10; i++) {
     do {
       newJawn = [Math.floor(Math.random()*gX), Math.floor(Math.random()*gY)];
-    } while (inSet(bombs, newJawn[0],newJawn[1]));
-    bombs.push(newJawn);
+    } while (bombGrid[newJawn[1]][newJawn[0]]);
+    bombGrid[newJawn[1]][newJawn[0]] = true;
   }
   drawGrid();
 }
