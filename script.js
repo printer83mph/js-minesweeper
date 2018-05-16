@@ -13,6 +13,8 @@ function drawGridIfNeeded() {
   if (Math.floor(mouseX/blockSize) != blockX || Math.floor(mouseY/blockSize) != blockY) {
     blockX = Math.floor(mouseX/blockSize);
     blockY = Math.floor(mouseY/blockSize);
+    console.log(blockX);
+    console.log(blockY);
     if (gameState === 0) {
       drawGrid();
     }
@@ -20,38 +22,39 @@ function drawGridIfNeeded() {
 }
 
 function drawGrid() {
-  ctx.fillStyle = "#d8d8d8";
+  ctx.fillStyle = "#e8e8e8";
   ctx.fillRect(0, 0, size, size);
   
-  ctx.fillStyle ="#e8e8e8";
+  ctx.fillStyle ="#d0d0d0";
 
   // mouse hover
-  if (gameState > -1 && mouseX > 0 && mouseX < size && mouseY > 0 && mouseY < size) {
+  if (mouseX > 0 && mouseX < size && mouseY > 0 && mouseY < size) {
     ctx.fillRect(blockX*blockSize, blockY*blockSize, blockSize, blockSize);
   }
 
   // draw uncovered
   for (var x = 0; x < gridSize; x++) {
     for (var y = 0; y < gridSize; y++) {
-      if (visGrid[y][x]+1) {
+      if (visGrid[y][x] >= 0) {
         // if is uncovered
-        ctx.fillStyle = "#e8e8e8";
+        ctx.fillStyle = "#ffffff";
         ctx.fillRect(blockSize * x, blockSize * y, blockSize, blockSize);
-        if (visGrid[y][x] === -2) {
-          ctx.fillStyle = "#2020d0";
-          ctx.beginPath();
-          ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
-          ctx.fill();
-        } else if (visGrid[y][x]) {
+        if (visGrid[y][x]) {
+          // number
           ctx.fillStyle = "#202020";
           ctx.fillText(visGrid[y][x], blockSize * (x + 0.5), blockSize * (y + 0.85));
         }
+      } else if (visGrid[y][x] === -2) {
+        // checked
+        ctx.fillStyle = "#2020d0";
+        ctx.beginPath();
+        ctx.ellipse(blockSize * (x + 0.5), blockSize * (y + 0.5), blockSize/3, blockSize/3, 0, 0, Math.PI*2);
+        ctx.fill();
       }
     }
   }
 
   // draw divs
-  ctx.fillStyle = "#e8e8e8";
   ctx.lineWidth = 1;
   for (var i = 1; i < gridSize; i++) {
     // draw col dividers
@@ -97,10 +100,10 @@ function bombsNear(x, y) {
 
 function markSpot(x, y) {
   // console.log("todo: mark spot");
-  if (visGrid[y][x] < 0) {
+  if (visGrid[y][x] < 0 && gameState === 0) {
     visGrid[y][x] = -3 -visGrid[y][x];
+    drawGrid();
   }
-  drawGrid();
 }
 
 function uncoverSpot(x, y) {
@@ -128,8 +131,8 @@ function uncoverSpot(x, y) {
           }
         }
       }
+      checkWin();
     }
-    checkWin();
     drawGrid();
   }
 }
@@ -137,9 +140,10 @@ function uncoverSpot(x, y) {
 function checkWin() {
   var won = true;
   checking:
-  for (row in visGrid) {
-    for (item in visGrid[row]) {
-      if (!(visGrid[row][item] + 1) && !isBomb(item, row)) {
+  for (x = 0; x < gridSize; x++) {
+    for (y = 0; y < gridSize; y++) {
+      // break if not checked or is bomb
+      if (visGrid[y][x] < 0 && !(isBomb(x, y))) {
         won = false;
         break checking;
       }
@@ -199,7 +203,7 @@ window.onload = function() {
   resizeGrid(8);
 
   // canvas stuff
-  ctx.strokeStyle = "#ffffff"
+  ctx.strokeStyle = "#d0d0d0"
 
   // hover stuff
   document.addEventListener("mousemove", function(e) {
