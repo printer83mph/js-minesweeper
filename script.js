@@ -106,8 +106,8 @@ function markSpot(x, y) {
 
 function uncoverSpot(x, y) {
   if (gameState === 0) {
+    if (visGrid[y][x] === -2) {return;}
     if(isBomb(x,y)) {
-      if (visGrid[y][x] === -2) {return;}
       gameState = -1;
       title.innerHTML = "Defeat!";
     } else {
