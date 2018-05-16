@@ -13,8 +13,6 @@ function drawGridIfNeeded() {
   if (Math.floor(mouseX/blockSize) != blockX || Math.floor(mouseY/blockSize) != blockY) {
     blockX = Math.floor(mouseX/blockSize);
     blockY = Math.floor(mouseY/blockSize);
-    console.log(blockX);
-    console.log(blockY);
     if (gameState === 0) {
       drawGrid();
     }
