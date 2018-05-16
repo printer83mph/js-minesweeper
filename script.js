@@ -5,7 +5,7 @@ var custominput, title;
 var mouseX, mouseY, blockX, blockY;
 
 // grid stuff
-var canvas, ctx, size, bombs, visGrid, gridSize, blockSize, gameState;
+var canvas, ctx, bombs, visGrid, gridX, gridY, blockSize, gameState;
 
 // bombs
 
@@ -21,18 +21,18 @@ function drawGridIfNeeded() {
 
 function drawGrid() {
   ctx.fillStyle = "#e8e8e8";
-  ctx.fillRect(0, 0, size, size);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   
   ctx.fillStyle ="#d0d0d0";
 
   // mouse hover
-  if (mouseX > 0 && mouseX < size && mouseY > 0 && mouseY < size) {
+  if (mouseX > 0 && mouseX < canvas.width && mouseY > 0 && mouseY < canvas.height) {
     ctx.fillRect(blockX*blockSize, blockY*blockSize, blockSize, blockSize);
   }
 
   // draw uncovered
-  for (var x = 0; x < gridSize; x++) {
-    for (var y = 0; y < gridSize; y++) {
+  for (var x = 0; x < gridX; x++) {
+    for (var y = 0; y < gridY; y++) {
       if (visGrid[y][x] >= 0) {
         // if is uncovered
         ctx.fillStyle = "#ffffff";
@@ -54,14 +54,18 @@ function drawGrid() {
 
   // draw divs
   ctx.lineWidth = 1;
-  for (var i = 1; i < gridSize; i++) {
+  for (var i = 1; i < gridX; i++) {
     // draw col dividers
     ctx.beginPath();
     ctx.moveTo(i * blockSize, 0);
-    ctx.lineTo(i * blockSize, size);
-    // draw row dividers
+    ctx.lineTo(i * blockSize, canvas.height);
+    ctx.stroke();
+  }
+  for (var i = 1; i < gridY; i++) {
+    // draw row divs
+    ctx.beginPath();
     ctx.moveTo(0, i * blockSize);
-    ctx.lineTo(size, i * blockSize);
+    ctx.lineTo(canvas.height, i * blockSize);
     ctx.stroke();
   }
 
@@ -77,9 +81,9 @@ function drawGrid() {
   // window.requestAnimationFrame(drawGrid);
 }
 
-function isBomb(x, y) {
-  for (b in bombs) {
-    if (x === bombs[b][0] && y === bombs[b][1]) {
+function inSet(set, x, y) {
+  for (b in set) {
+    if (x === set[b][0] && y === set[b][1]) {
       return true;
     }
   }
@@ -90,7 +94,7 @@ function bombsNear(x, y) {
   var bc = 0;
   for (var i = x-1; i < x + 2; i++) {
     for (var j = y-1; j < y + 2; j++) {
-      if (isBomb(i, j)) {bc++}
+      if (inSet(bombs, i, j)) {bc++}
     }
   }
   return bc;
@@ -107,7 +111,7 @@ function markSpot(x, y) {
 function uncoverSpot(x, y) {
   if (gameState === 0) {
     if (visGrid[y][x] === -2) {return;}
-    if(isBomb(x,y)) {
+    if(inSet(bombs, x,y)) {
       gameState = -1;
       title.innerHTML = "Defeat!";
     } else {
@@ -120,9 +124,9 @@ function uncoverSpot(x, y) {
       while (toCheckAround.length) {
         var spot = toCheckAround.shift();
         // fill toCheckAround with new spots (cannot be bombs/next to bombs) and update visgrid
-        for (var i = Math.max(spot[0]-1, 0); i < Math.min(spot[0] + 2, gridSize); i++) {
-          for (var j = Math.max(spot[1]-1, 0); j < Math.min(spot[1] + 2, gridSize); j++) {
-            if (!bombsNear(i, j) && visGrid[j][i] < 0) {
+        for (var i = Math.max(spot[0]-1, 0); i < Math.min(spot[0] + 2, gridX); i++) {
+          for (var j = Math.max(spot[1]-1, 0); j < Math.min(spot[1] + 2, gridY); j++) {
+            if (!bombsNear(i, j) && visGrid[j][i] < 0 && !inSet(toCheckAround, i, j)) {
               toCheckAround.push([i, j]);
             }
             visGrid[j][i] = bombsNear(i,j);
@@ -138,10 +142,10 @@ function uncoverSpot(x, y) {
 function checkWin() {
   var won = true;
   checking:
-  for (x = 0; x < gridSize; x++) {
-    for (y = 0; y < gridSize; y++) {
+  for (x = 0; x < gridX; x++) {
+    for (y = 0; y < gridY; y++) {
       // break if not checked or is bomb
-      if (visGrid[y][x] < 0 && !(isBomb(x, y))) {
+      if (visGrid[y][x] < 0 && !(inSet(bombs, x, y))) {
         won = false;
         break checking;
       }
@@ -153,13 +157,13 @@ function checkWin() {
   }
 }
 
-function makeGrid(gSize, fill) {
+function makeGrid(gX, gY, fill) {
   // output grid
   var out = [];
   // add all the zeroes
-  for (var i = 0; i < gridSize; i++) {
+  for (var i = 0; i < gY; i++) {
     var thisRow = [];
-    for (var j = 0; j < gridSize; j++) {
+    for (var j = 0; j < gX; j++) {
       thisRow.push(fill);
     }
     out.push(thisRow);
@@ -168,23 +172,34 @@ function makeGrid(gSize, fill) {
   return out;
 }
 
-function resizeGrid(gSize) {
+
+// WIP Scalability
+
+
+function resizeGrid(gX,gY) {
   // refresh sizes + gameState
-  gridSize = gSize;
-  blockSize = size/gridSize;
+  let largerDim = Math.max(gX, gY);
+  blockSize = Math.max(20, 512/largerDim);
+  canvas.width = blockSize * gX;
+  canvas.height = blockSize * gY;
+  gridX = gX;
+  gridY = gY;
   gameState = 0;
+  //canvas stuff
   ctx.font = blockSize + "px Helvetica, sans serif";
   ctx.textAlign = "center";
+  ctx.strokeStyle = "#d0d0d0";
+  // dom stuff
   title.innerHTML = "Minesweeper";
   // make visGrid
-  visGrid = makeGrid(gSize, -1);
+  visGrid = makeGrid(gX, gY, -1);
   // re-place bombs
   bombs = [];
   var newJawn;
-  for(var i = 0; i < gridSize**2 / 10; i++) {
+  for(var i = 0; i < gX * gY / 10; i++) {
     do {
-      newJawn = [Math.floor(Math.random()*gridSize), Math.floor(Math.random()*gridSize)];
-    } while (isBomb(newJawn[0],newJawn[1]));
+      newJawn = [Math.floor(Math.random()*gX), Math.floor(Math.random()*gY)];
+    } while (inSet(bombs, newJawn[0],newJawn[1]));
     bombs.push(newJawn);
   }
   drawGrid();
@@ -197,11 +212,7 @@ window.onload = function() {
   // game stuff
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
-  size = canvas.width;
-  resizeGrid(8);
-
-  // canvas stuff
-  ctx.strokeStyle = "#d0d0d0"
+  resizeGrid(8,8);
 
   // hover stuff
   document.addEventListener("mousemove", function(e) {
@@ -212,14 +223,14 @@ window.onload = function() {
 
   // click stuff
   document.addEventListener("contextmenu", function(e) {
-    if (mouseX > 0 && mouseX < size && mouseY > 0 && mouseY < size) {
+    if (mouseX > 0 && mouseX < canvas.width && mouseY > 0 && mouseY < canvas.height) {
       e.preventDefault();
       markSpot(blockX, blockY);
     }
   });
 
   document.addEventListener("click", function(e) {
-    if (mouseX > 0 && mouseX < size && mouseY > 0 && mouseY < size) {
+    if (mouseX > 0 && mouseX < canvas.width && mouseY > 0 && mouseY < canvas.height) {
       e.preventDefault();
       uncoverSpot(blockX, blockY);
     }
