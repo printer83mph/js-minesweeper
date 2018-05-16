@@ -205,8 +205,8 @@ window.onload = function() {
 
   // hover stuff
   document.addEventListener("mousemove", function(e) {
-    mouseX = e.clientX - canvas.offsetLeft;
-    mouseY = e.clientY - canvas.offsetTop;
+    mouseX = e.clientX - canvas.offsetLeft + window.scrollX;
+    mouseY = e.clientY - canvas.offsetTop + window.scrollY;
     drawGridIfNeeded();
   });
 
