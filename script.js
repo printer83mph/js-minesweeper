@@ -1,5 +1,5 @@
 // dom stuff
-var custominput, title;
+var custominput, custom, title;
 
 // mouse stuff
 var mouseX, mouseY, blockX, blockY;
@@ -172,7 +172,7 @@ function makeGrid(gX, gY, fill) {
 // WIP Scalability
 
 
-function resizeGrid(gX,gY) {
+function resizeGrid(gX,gY,bombs) {
   // refresh sizes + gameState
   let largerDim = Math.max(gX, gY);
   blockSize = Math.max(20, 512/largerDim);
@@ -192,7 +192,7 @@ function resizeGrid(gX,gY) {
   // re-place bombs
   bombGrid = makeGrid(gX, gY, false);
   var newJawn;
-  for(var i = 0; i < gX * gY / 10; i++) {
+  for(var i = 0; i < gX * gY * bombs; i++) {
     do {
       newJawn = [Math.floor(Math.random()*gX), Math.floor(Math.random()*gY)];
     } while (bombGrid[newJawn[1]][newJawn[0]]);
@@ -203,6 +203,7 @@ function resizeGrid(gX,gY) {
 
 window.onload = function() {
   custominput = document.getElementById("custominput");
+  custom = document.getElementById("custom");
   title = document.getElementById("title");
 
   // game stuff
@@ -230,6 +231,12 @@ window.onload = function() {
       e.preventDefault();
       uncoverSpot(blockX, blockY);
     }
+  });
+
+  custom.addEventListener("click", function(e) {
+    var vals = custominput.value.split(" ");
+    var dims = vals[0].split("x");
+    resizeGrid(dims[0], dims[1], Math.max(Math.min(Number(vals[1]), 10), 0)/10);
   });
 
   drawGrid();

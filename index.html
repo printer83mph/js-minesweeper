@@ -13,9 +13,9 @@
       <h1 id="title"> Minesweeper </h1>
     </header>
     <nav>
-      <button onclick="resizeGrid(8,8)"> 8x8 </button>
-      <button onclick="resizeGrid(16,16)"> 16x16 </button>
-      <button onclick="resizeGrid(parseInt(custominput.value.split('x')[0]), parseInt(custominput.value.split('x')[1]))"> Custom: </button>
+      <button onclick="resizeGrid(8,8, .1)"> 8x8 1 </button>
+      <button onclick="resizeGrid(16,16, .1)"> 16x16 1 </button>
+      <button id="custom"> Custom: </button>
       <input type="text" id="custominput"> </input>
     </nav>
     <canvas id="canvas" width="512" height="512"></canvas>
