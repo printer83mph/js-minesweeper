@@ -1,5 +1,5 @@
 // dom stuff
-var custominput, custom, title, progress;
+var custominput, custom, title, progress, hoverSound, clickSound, markSound;
 
 // mouse stuff
 var mouseX, mouseY, blockX, blockY;
@@ -14,6 +14,9 @@ function drawGridIfNeeded() {
     blockX = Math.floor(mouseX/blockSize);
     blockY = Math.floor(mouseY/blockSize);
     if (gameState === 0) {
+      if (mouseX > 0 && mouseX < canvas.width && mouseY > 0 && mouseY < canvas.height && visGrid[blockY][blockX] === -1) {
+        hoverSound.play();
+      }
       drawGrid();
     }
   }
@@ -100,6 +103,7 @@ function markSpot(x, y) {
   // console.log("todo: mark spot");
   if (visGrid[y][x] < 0 && gameState === 0) {
     visGrid[y][x] = -3 -visGrid[y][x];
+    markSound.play();
     drawGrid();
   }
 }
@@ -110,7 +114,9 @@ function uncoverSpot(x, y) {
     if(bombGrid[y][x]) {
       gameState = -1;
       title.innerHTML = "Defeat!";
-    } else {
+      clickSound.play();
+    } else if (visGrid[y][x] < 0) {
+      clickSound.play();
       var toCheckAround = [];
       // see if init spot needs to be checked around
       visGrid[y][x] = bombsNear(x,y);
@@ -169,8 +175,9 @@ function makeGrid(gX, gY, fill) {
 }
 
 
-// WIP Scalability
+function updateProgress() {
 
+}
 
 function resizeGrid(gX,gY,bombs) {
   // refresh sizes + gameState
@@ -187,6 +194,7 @@ function resizeGrid(gX,gY,bombs) {
   ctx.strokeStyle = "#d0d0d0";
   // dom stuff
   title.innerHTML = "Minesweeper";
+  updateProgress();
   // make visGrid
   visGrid = makeGrid(gX, gY, -1);
   // re-place bombs
@@ -206,11 +214,14 @@ window.onload = function() {
   custom = document.getElementById("custom");
   title = document.getElementById("title");
   progress = document.getElementById("progress");
+  hoverSound = new Audio("media/hover.wav");
+  clickSound = new Audio("media/click.wav");
+  markSound = new Audio("media/mark.wav");
 
   // game stuff
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
-  resizeGrid(8,8);
+  resizeGrid(8,8,.1);
 
   // hover stuff
   document.addEventListener("mousemove", function(e) {
