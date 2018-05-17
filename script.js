@@ -1,5 +1,5 @@
 // dom stuff
-var custominput, custom, title;
+var custominput, custom, title, progress;
 
 // mouse stuff
 var mouseX, mouseY, blockX, blockY;
@@ -205,6 +205,7 @@ window.onload = function() {
   custominput = document.getElementById("custominput");
   custom = document.getElementById("custom");
   title = document.getElementById("title");
+  progress = document.getElementById("progress");
 
   // game stuff
   canvas = document.getElementById("canvas");
